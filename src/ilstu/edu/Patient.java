@@ -104,11 +104,15 @@ public abstract class Patient {
 
     @Override
     public String toString() {
+        String pcrTestResult = "";
+        if (this.pcr == true)
+            pcrTestResult = "Positive";
+        if (this.pcr == false)
+            pcrTestResult = "Negative";
         return "id: " + this.id +
-                "\nfirst name: " + this.fName +
-                "\nlast name: " + this.lName +
+                "\nFull Name: " + fName + " " + lName +
                 "\nage: " + this.age +
-                "\npcr status: " + this.pcr;
+                "\npcr test result: " + pcrTestResult;
     }
 
 }
