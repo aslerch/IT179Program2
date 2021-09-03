@@ -18,7 +18,10 @@ public abstract class Patient {
         this.age = age;
     }
 
-    /** methods */
+    /** abstract methods */
+    public abstract String treat();
+
+    /** defined methods */
     /**
      * gets the identification number
      * @return identification number
@@ -98,4 +101,14 @@ public abstract class Patient {
     public void setPcr(boolean pcr) {
         this.pcr = pcr;
     }
+
+    @Override
+    public String toString() {
+        return "id: " + this.id +
+                "\nfirst name: " + this.fName +
+                "\nlast name: " + this.lName +
+                "\nage: " + this.age +
+                "\npcr status: " + this.pcr;
+    }
+
 }
