@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Main {
 
     /** global fields/objects */
-    private static final int ADMIT_PATIENT = 1, PRINT_PATIENT_INFORMATION = 2, SUBMIT_PCR_RESULT = 3,
+    private static final int  ADMIT_PATIENT = 1, PRINT_PATIENT_INFORMATION = 2, SUBMIT_PCR_RESULT = 3,
             DO_ROUNDS = 4, DISCHARGE_PATIENT = 5, EXIT = 6, INVALID = -1;
     private static final double LOWEST_LIVABLE_TEMPERATURE = 24, HIGHEST_LIVABLE_TEMPERATURE = 42;
     private static final int ID_LOWER_BOUND = 0, ID_UPPER_BOUND = 999999, MENU_LOWER_BOUND = 1, MENU_UPPER_BOUND = 6;
