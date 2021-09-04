@@ -3,7 +3,6 @@ package ilstu.edu;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /** Driver class for overall program */
@@ -13,31 +12,37 @@ public class Main {
     private static final int ADMIT_PATIENT = 1, PRINT_PATIENT_INFORMATION = 2, SUBMIT_PCR_RESULT = 3,
             DO_ROUNDS = 4, DISCHARGE_PATIENT = 5, EXIT = 6, INVALID = -1;
     private static final double LOWEST_LIVABLE_TEMPERATURE = 24, HIGHEST_LIVABLE_TEMPERATURE = 42;
-    private static final int ID_LOWER_BOUND = 0, ID_UPPER_BOUND = 999999;
+    private static final int ID_LOWER_BOUND = 0, ID_UPPER_BOUND = 999999, MENU_LOWER_BOUND = 1, MENU_UPPER_BOUND = 6;
     private static Scanner keyboard = new Scanner(System.in);
     private static ArrayList<Patient> allPatients = new ArrayList<Patient>();
 
     /** main method */
     public static void main(String [] args) {
 
-        int menuSelection = -1; // arbitrary initial value for menu selection
+        int menuSelection = INVALID; // arbitrary initial value for menu selection
         displayWelcomeSign();
         while (menuSelection != EXIT) {
             displayMenu();
-            menuSelection = askForIntBetween("Your selection (1-6): ", 1, 6);
+            menuSelection = askForIntBetween("Your selection (1-6): ", MENU_LOWER_BOUND, MENU_UPPER_BOUND);
             if (menuSelection == ADMIT_PATIENT) {
                 admitPatient();
+                System.out.println("Patient has been successfully admitted");
                 System.out.println("****************************************\n");
             }
             if (menuSelection == PRINT_PATIENT_INFORMATION) {
                 printPatientInformation();
                 System.out.println("****************************************\n");
             }
+            if (menuSelection == SUBMIT_PCR_RESULT) {
+                submitPcrResult();
+                System.out.println("****************************************\n");
+            }
         }
+        System.out.println(allPatients.toString());
 
     }
 
-    /** methods */
+    /** supporting methods */
     /**
      * adds a covid patient to the allPatients ArrayList
      * @param temperature the patient's temperature
@@ -194,6 +199,20 @@ public class Main {
         return output;
     }
 
+    private static void dischargePatient(int id) {
+            Patient cleanPatient = null;
+            for (Patient patient : allPatients) {
+                if (patient.getId() == id)
+                    if (patient.getPcr() == false)
+                        cleanPatient = patient;
+            }
+            if (cleanPatient != null) {
+                allPatients.remove(cleanPatient);
+                System.out.println("Patient has been successfully discharged");
+            }
+
+    }
+
     /**
      * Displays the menu
      */
@@ -257,6 +276,45 @@ public class Main {
                 returnPatient = patient;
         }
         return returnPatient;
+    }
+
+    private static void submitPcrResult() {
+        int returnId = INVALID;
+        int id = askForIntBetween("Please enter the patient's id number: ",
+                ID_LOWER_BOUND, ID_UPPER_BOUND);
+        boolean patientExists = doesPatientExist(id);
+        if (patientExists)
+            returnId = id;
+        if (returnId != INVALID) {
+            boolean hasCovid = askForPCRTestResult();
+            updatePatientPcrResult(id, hasCovid);
+        }
+        if (returnId == INVALID)
+            System.out.println("no patient has that id number");
+    }
+
+    private static void updatePatientPcrResult(int id, boolean hasCovid) {
+        Patient patient = searchAllPatientsFor(id);
+        // if patient had covid previously
+        if (patient.getPcr() == true) {
+            // if patient no longer has covid
+            if ( ! hasCovid ) {
+                searchAllPatientsFor(id).setPcr(false);
+                dischargePatient(id);
+            }
+        }
+        // if patient did not have covid previously
+        if (patient.getPcr() == false) {
+            // if patient now has covid
+            if (hasCovid) {
+                Patient regularPatient = searchAllPatientsFor(id);
+                Patient newCovidTransferPatient = new Covid19Patient(id, regularPatient.getfName(),
+                        regularPatient.getlName(), regularPatient.getAge(),
+                        askForDoubleBetween("Please enter the patient's temperature (24-42): ", LOWEST_LIVABLE_TEMPERATURE, HIGHEST_LIVABLE_TEMPERATURE));
+                allPatients.remove(regularPatient);
+                allPatients.add(newCovidTransferPatient);
+            }
+        }
     }
 
 
