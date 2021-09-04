@@ -10,6 +10,7 @@ public class Covid19Patient extends Patient {
     public Covid19Patient(int id, String fName, String lName, int age, double temperature) {
         super(id, fName, lName, age);
         this.temperature = temperature;
+        super.setPcr(true);
     }
 
     /** methods */
