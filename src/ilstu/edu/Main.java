@@ -37,8 +37,22 @@ public class Main {
                 submitPcrResult();
                 System.out.println("****************************************\n");
             }
+            if (menuSelection == DO_ROUNDS) {
+                doRounds();
+                System.out.println("****************************************\n");
+            }
+            if (menuSelection == DISCHARGE_PATIENT) {
+                int id = askForIntBetween("Please enter the patient's id number: ", ID_LOWER_BOUND, ID_UPPER_BOUND);
+                boolean patientExists = doesPatientExist(id);
+                if (patientExists)
+                    dischargePatient(id);
+                if (! patientExists)
+                    System.out.println("there does not exist a patient with that id number");
+                System.out.println("****************************************\n");
+            }
+            if (menuSelection == EXIT)
+                System.out.println("Thank you for using the hospital patient database");
         }
-        System.out.println(allPatients.toString());
 
     }
 
@@ -199,6 +213,10 @@ public class Main {
         return output;
     }
 
+    /**
+     * discharges the patient from the hospital
+     * @param id identification number of the patient
+     */
     private static void dischargePatient(int id) {
             Patient cleanPatient = null;
             for (Patient patient : allPatients) {
@@ -210,6 +228,8 @@ public class Main {
                 allPatients.remove(cleanPatient);
                 System.out.println("Patient has been successfully discharged");
             }
+            if (cleanPatient == null)
+                System.out.println("Unable to discharge patient. Patient still has covid");
 
     }
 
@@ -249,6 +269,22 @@ public class Main {
     }
 
     /**
+     * treats all patients and updates the temperature of all patients with covid
+     */
+    private static void doRounds() {
+        for (Patient patient : allPatients) {
+            if (patient instanceof Covid19Patient) {
+                String temperatureRequestMessage = "Please enter " + patient.getfName() + " " +
+                        patient.getlName() + "'s temperature (24-42): ";
+                double newTemperature = askForDoubleBetween(temperatureRequestMessage,
+                        LOWEST_LIVABLE_TEMPERATURE, HIGHEST_LIVABLE_TEMPERATURE);
+                ((Covid19Patient) patient).setTemperature(newTemperature);
+            }
+            System.out.println("patient #" + patient.getId() + "'s suggested treatment: " + patient.treat());
+        }
+    }
+
+    /**
      * prints the patient's information if they exist
      */
     private static void printPatientInformation() {
@@ -278,6 +314,11 @@ public class Main {
         return returnPatient;
     }
 
+    /**
+     * accepts a new PCR test result for a patient and sorts the patient based on the result of that test.
+     * if patient had covid but test was nagative, then patient is discharged
+     * if patient did not have covid, but test was positive, then patient is reclassified as a covid patient
+     */
     private static void submitPcrResult() {
         int returnId = INVALID;
         int id = askForIntBetween("Please enter the patient's id number: ",
@@ -293,6 +334,11 @@ public class Main {
             System.out.println("no patient has that id number");
     }
 
+    /**
+     * updates the patient's placement within the hospital based on whether they have covid or not
+     * @param id identification number
+     * @param hasCovid true if patient has covid, false if patient does not have covid
+     */
     private static void updatePatientPcrResult(int id, boolean hasCovid) {
         Patient patient = searchAllPatientsFor(id);
         // if patient had covid previously
